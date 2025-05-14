@@ -26,7 +26,7 @@ This tool is designed to streamline and simplify the process for users who wish 
 
 ## ✅ Current Status
 
-- [x] GUI implemented with `tkinter`
+- [x] GUI implemented with `tkinter` and `ttkbootstrap`
 - [x] Able to launch **custom Chrome instance** using user-defined:
   - Profile folder
   - Chrome binary
