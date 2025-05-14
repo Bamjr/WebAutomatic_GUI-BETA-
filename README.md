@@ -4,10 +4,12 @@ This tool is designed to streamline and simplify the process for users who wish 
 ## 🚀 How to Use
 
 1. Make sure you have Python installed. (3.11.5 version)
-2. Install dependencies (e.g., `selenium`) via:
+2. Install dependencies (e.g., `selenium`, `ttkbootstrap`) via:
 
    ```bash
    pip install selenium
+   python -m pip install ttkbootstrap
+
    ```
 
 3. Run the script [Auto.py](Auto.py):
