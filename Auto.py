@@ -137,7 +137,7 @@ class TabbedApp:
 
     def create_page3(self):
         frame = Frame(self.notebook, bg="#2b1e4d")
-        Label(frame, text="Vapor mode activated!", font=("Helvetica", 16), bg="#2b1e4d", fg="#a0f5c0").pack(pady=20)
+        Label(frame, text="Visit my github https://github.com/Bamjr", font=("Helvetica", 16), bg="#2b1e4d", fg="#a0f5c0").pack(pady=20)
         return frame
 
 # ===== Run Application =====
