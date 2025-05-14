@@ -122,3 +122,4 @@ class TabbedApp:
 if __name__ == "__main__":
     app = ttk.Window(themename="vapor")
     TabbedApp(app)
+    app.mainloop()
