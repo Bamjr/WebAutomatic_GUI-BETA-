@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.service import Service
 from tkinter import filedialog, messagebox
 from tkinter import Frame, Label
 import time
+import webbrowser
 
 class TabbedApp:
     def __init__(self, root):
@@ -43,16 +44,34 @@ class TabbedApp:
         ttk.Button(frame, text="เลือกโฟลเดอร์ Profile", command=self.select_profile, bootstyle="outline-info").pack(pady=(0, 15))
 
         # === Chrome Path ===
-        ttk.Label(frame, text="ตำแหน่ง Chrome.exe", bootstyle="info").pack(pady=(10))
+        ttk.Label(frame, text="ตำแหน่ง Chrom.exe", bootstyle="info").pack(pady=(10))
+
+        
         self.chrome_entry = ttk.Entry(frame, width=60)
-        self.chrome_entry.pack()
-        ttk.Button(frame, text="เลือก Chrome.exe", command=self.select_chrome, bootstyle="outline-info").pack(pady=(10))
+        self.chrome_entry.pack(pady=(0, 5))
+
+        chrome_row = ttk.Frame(frame)
+        chrome_row.pack(pady=(0, 10))
+
+
+        ttk.Button(chrome_row, text="เลือก Chrome.exe", command=self.select_chrome, bootstyle="outline-info").pack(side="left", padx=(0, 5))
+
+        ttk.Button(chrome_row, text="📥 Download", command=self.download_chrome, bootstyle="secondary-outline").pack(side="left")
 
         # === Driver Path ===
+        
         ttk.Label(frame, text="ตำแหน่ง Chromedriver.exe", bootstyle="info").pack(pady=(10))
+
         self.driver_entry = ttk.Entry(frame, width=60)
-        self.driver_entry.pack()
-        ttk.Button(frame, text="เลือก Chromedriver.exe", command=self.select_driver, bootstyle="outline-info").pack(pady=(10))
+        self.driver_entry.pack(pady=(0, 10))
+
+        driver_row = ttk.Frame(frame)
+        driver_row.pack(pady=(0, 10))
+
+        ttk.Button(driver_row, text="เลือก Chromedriver.exe", command=self.select_driver, bootstyle="outline-info").pack(side="left", padx=(0, 5))
+
+        ttk.Button(driver_row, text="📥 Download", command=self.download_chrome,bootstyle="secondary-outline").pack(side="left")
+
 
         # === Version ===
         ttk.Label(frame, text="เวอร์ชั่น Chrome (optional)", bootstyle="info").pack(pady=(10))
@@ -65,6 +84,9 @@ class TabbedApp:
         return frame
 
     # ===== ฟังก์ชันย่อยสำหรับหน้าแรก =====
+    def download_chrome(self):
+        webbrowser.open("https://googlechromelabs.github.io/chrome-for-testing/")
+
     def select_profile(self):
         path = filedialog.askdirectory()
         if path:
@@ -100,10 +122,10 @@ class TabbedApp:
             chrome_options.binary_location = self.browser_config["chrome_path"]
 
             service = Service(self.browser_config["driver_path"])
-            driver = webdriver.Chrome(service=service, options=chrome_options)
+            self.driver = webdriver.Chrome(service=service, options=chrome_options)
 
             time.sleep(2)
-            driver.get("https://google.com")
+            self.driver.get("https://google.com")
             messagebox.showinfo("Success", "เปิด Chrome สำเร็จแล้ว!")
         except Exception as e:
             messagebox.showerror("Error", f"เปิด Chrome ไม่ได้:\n{e}")
