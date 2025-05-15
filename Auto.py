@@ -24,14 +24,14 @@ class TabbedApp:
         self.notebook = ttk.Notebook(root, bootstyle="primary")
         self.notebook.pack(fill="both", expand=True, padx=10, pady=10)
 
-        self.add_tab(self.create_page1(), "Custom Chrome Setup")
-        self.add_tab(self.create_page2(), "Logs")
-        self.add_tab(self.create_page3(), "About")
+        self.add_tab(self.ChromeSetup_page(), "Custom Chrome Setup")
+        self.add_tab(self.Action_page(), "Action")
+        self.add_tab(self.About_page(), "About")
 
     def add_tab(self, frame, title):
         self.notebook.add(frame, text=title)
 
-    def create_page1(self):
+    def ChromeSetup_page(self):
         frame = Frame(self.notebook, bg="#1f1f2e")
 
         ttk.Label(frame, text="Setup Chrome for dev", font=("Helvetica", 20), bootstyle="info").pack(pady=(10, 0))
@@ -130,15 +130,41 @@ class TabbedApp:
         except Exception as e:
             messagebox.showerror("Error", f"เปิด Chrome ไม่ได้:\n{e}")
 
-    def create_page2(self):
-        frame = Frame(self.notebook, bg="#261d3d")
-        Label(frame, text="นี่คือหน้า Logs", font=("Helvetica", 16), bg="#261d3d", fg="#ffafff").pack(pady=20)
+    def Action_page(self):
+        frame = Frame(self.notebook, bg="#1f1f2e")
+    # === ซ้าย: กล่องม่วง Command set ===
+        left = ttk.Frame(frame, style="white.TFrame", width=300, height=600)
+        left.pack(side="left", fill="both", expand=True, padx=10, pady=10)
+
+        ttk.Label(
+    left,
+    text="Command set",
+    bootstyle="light",
+    anchor="center",
+    font=("Helvetica", 12, "bold"),
+    background="white",
+    foreground="#333333",
+    padding=5
+).pack(fill="x")
+
+    # === ขวา: ปุ่ม ===
+        right = Frame(frame, bg="white", width=250)
+        right.pack(side="right", fill="y", padx=10, pady=10)
+
+        self.create_command_button(right, "find text")
+        self.create_command_button(right, "find attribute")
+        self.create_command_button(right, "click")
+
         return frame
 
-    def create_page3(self):
+    def About_page(self):
         frame = Frame(self.notebook, bg="#2b1e4d")
         Label(frame, text="Visit my github https://github.com/Bamjr", font=("Helvetica", 16), bg="#2b1e4d", fg="#a0f5c0").pack(pady=20)
         return frame
+    
+    def create_command_button(self, parent, text):
+        ttk.Button(parent, text=text, bootstyle="outline-info", width=20).pack(pady=10)
+
 
 # ===== Run Application =====
 if __name__ == "__main__":
