@@ -7,6 +7,7 @@ from tkinter import filedialog, messagebox
 from tkinter import Frame, Label
 import time
 import webbrowser
+from selenium.webdriver.common.by import By
 
 class TabbedApp:
     def __init__(self, root):
@@ -20,6 +21,8 @@ class TabbedApp:
             "driver_path": None,
             "version": None
         }
+
+        self.action_blocks = {}
 
         self.notebook = ttk.Notebook(root, bootstyle="primary")
         self.notebook.pack(fill="both", expand=True, padx=10, pady=10)
@@ -133,11 +136,12 @@ class TabbedApp:
     def Action_page(self):
         frame = Frame(self.notebook, bg="#1f1f2e")
     # === ซ้าย: กล่องม่วง Command set ===
-        left = ttk.Frame(frame, style="white.TFrame", width=300, height=600)
-        left.pack(side="left", fill="both", expand=True, padx=10, pady=10)
+        self.left_block = ttk.Frame(frame, style="white.TFrame", width=300, height=600)
+        self.left_block.pack(side="left", fill="both", expand=True, padx=10, pady=10)
+        
 
         ttk.Label(
-    left,
+    self.left_block,
     text="Command set",
     bootstyle="light",
     anchor="center",
@@ -154,6 +158,9 @@ class TabbedApp:
         self.create_command_button(right, "find text")
         self.create_command_button(right, "find attribute")
         self.create_command_button(right, "click")
+        self.create_command_button(right, "input text")
+
+        ttk.Button(self.left_block, text="🚀 Execute All", command=self.execute_all, bootstyle="success-outline").pack(pady=20)
 
         return frame
 
@@ -162,8 +169,69 @@ class TabbedApp:
         Label(frame, text="Visit my github https://github.com/Bamjr", font=("Helvetica", 16), bg="#2b1e4d", fg="#a0f5c0").pack(pady=20)
         return frame
     
-    def create_command_button(self, parent, text):
-        ttk.Button(parent, text=text, bootstyle="outline-info", width=20).pack(pady=10)
+    def create_command_button(self, parent, text,command=None):
+        commands = {
+        "find text": self.find_text_block,
+        # "find attribute": self.find_attribute_block,  # (ไว้ค่อยเพิ่ม)
+        # "click": self.click_block,                   # (ไว้ค่อยเพิ่ม)
+        # "input text": self.input_text_block          # (ไว้ค่อยเพิ่ม)
+    }
+        ttk.Button(parent, text=text, command=commands.get(text), bootstyle="outline-info", width=20).pack(pady=10)
+
+    # ===== Action block =====
+    def find_text_block(self):
+        frame = ttk.Frame(self.left_block, padding=10)
+        frame.pack(fill="x", pady=5)
+
+        label = ttk.Label(frame, text="Find text:")
+        label.pack(side="left")
+
+        entry = ttk.Entry(frame, width=30)
+        entry.pack(side="left", padx=5)
+
+    # เก็บไว้ใน action_blocks["find_text"] เป็น list
+        if "find_text" not in self.action_blocks:
+            self.action_blocks["find_text"] = []
+
+        self.action_blocks["find_text"].append(entry)
+        
+
+    # ===== Action Functions =====
+
+    def find_text(self):
+        if not hasattr(self, "driver") or not self.driver:
+            messagebox.showerror("Error", "กรุณาเปิด Chrome ก่อนใช้งาน find_text")
+            return
+
+        text_entries = self.action_blocks.get("find_text", [])
+        for entry in text_entries:
+                keyword = entry.get()
+        if keyword:
+            try:
+                elements = self.driver.find_elements(By.XPATH, f"//*[contains(text(), '{keyword}')]")
+                if elements:
+                    for el in elements:
+                        self.driver.execute_script("arguments[0].scrollIntoView(true);", el)
+                        self.driver.execute_script("arguments[0].style.border='2px solid red'", el)
+            except Exception as e:
+                print(f"Error finding '{keyword}': {e}")
+
+    # ===== Execute =====
+
+    def execute_all(self):
+        if not hasattr(self, "driver") or not self.driver:
+            messagebox.showerror("Error", "กรุณาเปิด Chrome ก่อนทำการ Execute")
+            return
+
+        if "find_text" in self.action_blocks:
+            self.find_text()
+
+    # future: เพิ่ม block อื่นได้ที่นี่
+
+        messagebox.showinfo("Success", "Executed all actions successfully!")
+
+
+
 
 
 # ===== Run Application =====
