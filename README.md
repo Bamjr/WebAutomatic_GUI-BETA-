@@ -35,5 +35,6 @@ This tool is designed to streamline and simplify the process for users who wish 
   - ChromeDriver path
 - [x] Optional Chrome version input supported
 - [x] Configuration fully integrated with Selenium
+- [ ] on going - Action function (find, click etc.)
 
 ---
