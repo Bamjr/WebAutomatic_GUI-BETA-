@@ -172,7 +172,7 @@ class TabbedApp:
     def create_command_button(self, parent, text,command=None):
         commands = {
         "find text": self.find_text_block,
-        # "find attribute": self.find_attribute_block,  # (ไว้ค่อยเพิ่ม)
+        "find attribute": self.find_attribute_block, 
         # "click": self.click_block,                   # (ไว้ค่อยเพิ่ม)
         # "input text": self.input_text_block          # (ไว้ค่อยเพิ่ม)
     }
@@ -194,6 +194,28 @@ class TabbedApp:
             self.action_blocks["find_text"] = []
 
         self.action_blocks["find_text"].append(entry)
+
+    def find_attribute_block(self):
+        frame = ttk.Frame(self.left_block, padding=10)
+        frame.pack(fill="x", pady=5)
+        label = ttk.Label(frame, text="Find attribute:")
+        label.pack(side="left")
+        
+        label2 = ttk.Label(frame, text="Tag name:")
+        label2.pack(side="left", padx=(10, 0))
+        entryTAG = ttk.Entry(frame, width=15)
+        entryTAG.pack(side="left", padx=5)
+        label3 = ttk.Label(frame, text="class name:")
+        label3.pack(side="left", padx=(10, 0))
+        entryCLASS = ttk.Entry(frame, width=15)
+        entryCLASS.pack(side="left", padx=5)
+
+        if "find_attribute" not in self.action_blocks:
+            self.action_blocks["find_attribute"] = []
+
+        self.action_blocks["find_attribute"].append((entryTAG, entryCLASS))
+
+
         
 
     # ===== Action Functions =====
@@ -204,17 +226,57 @@ class TabbedApp:
             return
 
         text_entries = self.action_blocks.get("find_text", [])
-        for entry in text_entries:
-                keyword = entry.get()
-        if keyword:
+        for entry in text_entries:                # ← วนทุกช่อง
+            keyword = entry.get().strip()
+            if not keyword:                       # ← ข้ามช่องว่าง
+                continue
             try:
-                elements = self.driver.find_elements(By.XPATH, f"//*[contains(text(), '{keyword}')]")
-                if elements:
-                    for el in elements:
-                        self.driver.execute_script("arguments[0].scrollIntoView(true);", el)
-                        self.driver.execute_script("arguments[0].style.border='2px solid red'", el)
+                elements = self.driver.find_elements(
+                    By.XPATH,
+                    f"//*[contains(normalize-space(text()), '{keyword}')]"
+                )
+                for el in elements:
+                    self.driver.execute_script("arguments[0].scrollIntoView(true);", el)
+                    self.driver.execute_script("arguments[0].style.border='2px solid red'", el)
             except Exception as e:
-                print(f"Error finding '{keyword}': {e}")
+                print(f"[find_text] {e}")
+    
+    def build_xpath(self,tag_name: str, class_name: str) -> str:
+        tag = tag_name or '*'                     # ว่าง = wildcard
+        cls = class_name.strip()
+        if not cls:
+            return f"//{tag}"                     # หาเฉพาะ tag
+
+        # รองรับหลาย class แยกด้วยช่องว่าง, ต้องครบทุกคลาส
+        parts = [
+            f"contains(concat(' ', normalize-space(@class), ' '), ' {c} ')"
+            for c in cls.split()
+        ]
+        return f"//{tag}[{' and '.join(parts)}]"
+
+    def find_attribute(self):
+        if not hasattr(self, "driver") or not self.driver:
+            messagebox.showerror("Error", "กรุณาเปิด Chrome ก่อนใช้งาน find_attribute")
+            return
+
+        for tag_entry, cls_entry in self.action_blocks.get("find_attribute", []):
+            tag_name  = tag_entry.get().strip()
+            class_name = cls_entry.get().strip()
+
+            xpath = self.build_xpath(tag_name, class_name)
+            try:
+                elements = self.driver.find_elements(By.XPATH, xpath)
+                if not elements:
+                    print(f"[find_attribute] ไม่พบ {xpath}")
+                    continue
+                for el in elements:
+                    self.driver.execute_script("arguments[0].scrollIntoView(true);", el)
+                    self.driver.execute_script("arguments[0].style.border='2px solid red'", el)
+            except Exception as e:
+                print(f"[find_attribute] {e}")
+
+
+    
 
     # ===== Execute =====
 
@@ -225,6 +287,9 @@ class TabbedApp:
 
         if "find_text" in self.action_blocks:
             self.find_text()
+
+        if "find_attribute" in self.action_blocks:
+            self.find_attribute()
 
     # future: เพิ่ม block อื่นได้ที่นี่
 
